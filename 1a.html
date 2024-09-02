@@ -1,0 +1,183 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Chore Manager</title>
+    <link
+      rel="stylesheet"
+      href="https://fonts.googleapis.com/css?family=Roboto:300,400,500,700&display=swap"
+    />
+    <script src="https://cdn.jsdelivr.net/npm/dayjs@1/dayjs.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/dayjs@1/plugin/calendar.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/dayjs@1/plugin/weekOfYear.js"></script>
+    <script>
+      dayjs.extend(dayjs_plugin_calendar);
+      dayjs.extend(dayjs_plugin_weekOfYear);
+    </script>
+    <style>
+      body {
+        font-family: 'Roboto', sans-serif;
+      }
+      .container {
+        max-width: 800px;
+        margin: auto;
+      }
+      .task {
+        background: #f9f9f9;
+        padding: 10px;
+        border-bottom: 1px solid #ddd;
+      }
+      .task:last-child {
+        border-bottom: none;
+      }
+      .progress-bar {
+        width: 100%;
+        height: 20px;
+        background-color: #e0e0e0;
+        border-radius: 10px;
+        overflow: hidden;
+      }
+      .progress {
+        height: 20px;
+        background-color: #4caf50;
+        width: 0%;
+        transition: width 0.5s;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="container">
+      <h1 id="greeting">Welcome to Chore Manager!</h1>
+      <input type="text" id="headName" placeholder="Head of Family's Name" />
+      <input
+        type="number"
+        id="numMembers"
+        placeholder="Number of Family Members"
+      />
+      <button onclick="setupFamily()">Set Family</button>
+      <div id="familyMembers"></div>
+      <div id="taskManager">
+        <input type="text" id="taskName" placeholder="Task Name" />
+        <select id="assignTo"></select>
+        <input type="date" id="dueDate" />
+        <label>Recurring:</label>
+        <select id="recurring">
+          <option value="none">None</option>
+          <option value="daily">Daily</option>
+          <option value="weekly">Weekly</option>
+          <option value="monthly">Monthly</option>
+        </select>
+        <button onclick="addTask()">Add Task</button>
+        <div id="tasksDisplay"></div>
+      </div>
+    </div>
+
+    <script>
+      let familyMembers = [];
+      let tasks = [];
+
+      function setupFamily() {
+        const headName = document.getElementById('headName').value;
+        const numMembers = document.getElementById('numMembers').value;
+        localStorage.setItem('headName', headName);
+        localStorage.setItem('numMembers', numMembers);
+        updateGreeting();
+        generateFamilyInputFields(numMembers);
+      }
+
+      function updateGreeting() {
+        const greetingElement = document.getElementById('greeting');
+        const headName = localStorage.getItem('headName');
+        greetingElement.textContent = `Hi, ${headName} welcome to the Chore Manager!`;
+      }
+
+      function generateFamilyInputFields(numMembers) {
+        const familyMembersDiv = document.getElementById('familyMembers');
+        for (let i = 0; i < numMembers; i++) {
+          const input = document.createElement('input');
+          input.type = 'text';
+          input.placeholder = `Family Member ${i + 1} Name`;
+          familyMembersDiv.appendChild(input);
+        }
+        const saveButton = document.createElement('button');
+        saveButton.textContent = 'Save Family Members';
+        saveButton.onclick = saveFamilyMembers;
+        familyMembersDiv.appendChild(saveButton);
+      }
+
+      function saveFamilyMembers() {
+        const inputs = document
+          .getElementById('familyMembers')
+          .getElementsByTagName('input');
+        familyMembers = Array.from(inputs).map((input) => input.value);
+        localStorage.setItem('familyMembers', JSON.stringify(familyMembers));
+        populateAssignToSelect();
+      }
+
+      function populateAssignToSelect() {
+        const select = document.getElementById('assignTo');
+        familyMembers.forEach((member) => {
+          const option = document.createElement('option');
+          option.value = member;
+          option.textContent = member;
+          select.appendChild(option);
+        });
+      }
+
+      function addTask() {
+        const taskName = document.getElementById('taskName').value;
+        const assignTo = document.getElementById('assignTo').value;
+        const dueDate = document.getElementById('dueDate').value;
+        const recurring = document.getElementById('recurring').value;
+        const task = {
+          name: taskName,
+          assignTo,
+          dueDate,
+          recurring,
+          status: 'pending',
+        };
+        tasks.push(task);
+        localStorage.setItem('tasks', JSON.stringify(tasks));
+        displayTasks();
+      }
+
+      function displayTasks() {
+        const tasksDisplay = document.getElementById('tasksDisplay');
+        tasksDisplay.innerHTML = '';
+        tasks.forEach((task, index) => {
+          const taskDiv = document.createElement('div');
+          taskDiv.className = 'task';
+          const statusButton = document.createElement('button');
+          statusButton.textContent =
+            task.status === 'pending' ? 'Start' : 'Complete';
+          statusButton.onclick = () => updateTaskStatus(index);
+          taskDiv.innerHTML = `Task: ${task.name}, Assign To: ${task.assignTo}, Due Date: ${task.dueDate}`;
+          taskDiv.appendChild(statusButton);
+          tasksDisplay.appendChild(taskDiv);
+        });
+      }
+
+      function updateTaskStatus(index) {
+        const newStatus =
+          tasks[index].status === 'pending' ? 'in progress' : 'completed';
+        tasks[index].status = newStatus;
+        displayTasks();
+        localStorage.setItem('tasks', JSON.stringify(tasks));
+      }
+
+      // Initialization
+      if (localStorage.getItem('headName')) {
+        updateGreeting();
+      }
+      if (localStorage.getItem('familyMembers')) {
+        familyMembers = JSON.parse(localStorage.getItem('familyMembers'));
+        populateAssignToSelect();
+      }
+      if (localStorage.getItem('tasks')) {
+        tasks = JSON.parse(localStorage.getItem('tasks'));
+        displayTasks();
+      }
+    </script>
+  </body>
+</html>

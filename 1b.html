@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Chore Manager</title>
+    <link
+      href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css"
+      rel="stylesheet"
+    />
+    <style>
+      body {
+        padding: 20px;
+      }
+      .task-card {
+        margin: 10px 0;
+        padding: 10px;
+        border: 1px solid #ddd;
+        border-radius: 5px;
+      }
+      .progress {
+        height: 20px;
+      }
+    </style>
+  </head>
+  <body>
+    <div id="app">
+      <h2 class="text-center">
+        Hi, <span id="familyHead"></span> welcome to the Chore Manager!
+      </h2>
+
+      <!-- Setup Form -->
+      <div id="setupForm" class="mb-4">
+        <input
+          type="text"
+          id="headName"
+          placeholder="Name of the head of the family"
+          class="form-control mb-2"
+        />
+        <input
+          type="number"
+          id="memberCount"
+          placeholder="Number of family members"
+          class="form-control mb-2"
+        />
+        <button onclick="setupFamily()" class="btn btn-primary">
+          Setup Family
+        </button>
+      </div>
+
+      <!-- Family Members Input -->
+      <div id="familyMembers" style="display: none">
+        <h4>Enter Family Members' Names</h4>
+        <div id="memberInputs"></div>
+        <button onclick="saveFamily()" class="btn btn-success">
+          Save Family
+        </button>
+      </div>
+
+      <!-- Chore Management -->
+      <div id="choreManagement">
+        <!-- Task Assignment -->
+        <div>
+          <select id="memberSelect" class="form-control"></select>
+          <input
+            type="text"
+            id="taskName"
+            placeholder="Task Name"
+            class="form-control"
+          />
+          <input type="date" id="dueDate" class="form-control" />
+          <select id="recurrence" class="form-control">
+            <option value="none">No Recurrence</option>
+            <option value="daily">Daily</option>
+            <option value="weekly">Weekly</option>
+            <option value="monthly">Monthly</option>
+          </select>
+          <button onclick="assignTask()" class="btn btn-info">
+            Assign Task
+          </button>
+        </div>
+
+        <!-- Calendar or List View of Tasks -->
+        <div id="taskList"></div>
+      </div>
+    </div>
+
+    <script src="app.js"></script>
+  </body>
+</html>
